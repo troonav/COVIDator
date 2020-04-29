@@ -59,6 +59,8 @@ if (preprocess) {
   }
 }
 
+write_csv(BigData, "bigData.csv")
+
 # Now data is available
 #DutchData <- BigData %>% filter(`Country/Region` == "Netherlands") %>% group_by(Measurement_Date) %>% summarise(Confirmed = sum(Confirmed), Deaths = sum(Deaths), Recovered = sum(Recovered)) %>% gather(type, count, Confirmed:Recovered)
 #country <- c("Mainland China", "China")

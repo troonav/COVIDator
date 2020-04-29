@@ -8,6 +8,15 @@ BigData <- read_csv('bigData.csv')
 
 #extract country names 
 countryList<- sort(unique(BigData$`Country/Region`))
+#europe <- list("Europe" = list("Germany","France","Spain"))
+europe <- list("Europe" = paste("Albania", "Andorra", "Austria", "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria", "Croatia", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Italy", "Latvia", "Kosovo", "Liechtenstein", "Lithuania", "Luxembourg", "North Macedonia", "Malta", "Moldova", "Montenegro", "Monaco", "Netherlands", "Norway", "Poland", "Portugal", "Romania" ,"Russia", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Ukraine", "UK", "United Kingdom", "Vatican City", "North Ireland", "Republic of Ireland", sep = "/"))
+north_america <- list("North-America" = paste("Antigua and Barbuda","Anguilla","Aruba","The Bahamas","Barbados","Belize","Bermuda","Bonaire","British Virgin Islands","Canada","Cayman Islands","Clipperton Island","Costa Rica","Cuba","Curacao","Dominica","Dominican Republic","El Salvador","Greenland","Grenada","Guadeloupe","Guatemala","Haiti","Honduras","Jamaica","Martinique","Mexico","Montserrat","Navassa Island","Nicaragua","Panama","Puerto Rico","Saba","Saint Barthelemy","Saint Kitts and Nevis","Saint Lucia","Saint Martin","Saint Pierre and Miquelon","Saint Vincent and the Grenadines","Sint Eustatius","Sint Maarten","Trinidad and Tobago","Turks and Caicos","US","US Virgin Islands", sep = "/"))
+south_america <- list("South-America" = paste("Argentina","Bolivia","Brazil","Chile","Colombia","Ecuador","Falkland Islands","French Guiana","Guyana","Paraguay","Peru","South Georgia and the South Sandwich Islands","Suriname","Uruguay","Venezuela", sep = "/"))
+africa <- list("Africa" = paste("Algeria","Angola","Benin","Botswana","Burkina Faso","Burundi","Cameroon","Cape Verde","Central African Republic","Chad","Comoros","Republic of the Congo","Democratic Republic of the Congo","Cote d'Ivoire","Djibouti","Egypt","Equatorial Guinea","Eritrea","Ethiopia","Gabon","Gambia, The", "Gambia","Ghana","Guinea","Guinea-Bissau","Kenya","Lesotho","Liberia","Libya","Madagascar","Malawi","Mali","Mauritania","Mauritius","Morocco","Mozambique","Namibia","Niger","Nigeria","Rwanda","Sao Tome and Principe","Senegal","Seychelles","Sierra Leone","Somalia","South Africa","South Sudan","Sudan","Swaziland","Tanzania","Togo","Tunisia","Uganda","Western Sahara","Zambia","Zimbabwe", sep = "/"))
+asia <- list("Asia" = paste("Afghanistan","Armenia","Azerbaijan","Bahrain","Bangladesh","Bhutan","Brunei","Cambodia","China","Cyprus","Timor Leste","Georgia","India","Indonesia","Iran","Iraq","Israel","Japan","Jordan","Kazakhstan","Kuwait","Kyrgyzstan","Laos","Lebanon","Malaysia","Maldives","Mongolia","Burma","Nepal","North Korea","Oman","Pakistan","Philippines","Palestine","Qatar","Russia","Saudi Arabia","Singapore","South Korea","Sri Lanka","Syria","Tajikistan","Thailand","Turkey","Turkmenistan","Taiwan","United Arab Emirates","Uzbekistan","Vietnam","Yemen", sep = "/"))
+oceania <- list("Oceania" = paste("Australia","Federated States of Micronesia","Fiji","Kiribati","Marshall Islands","Nauru","New Zealand","Palau","Papua New Guinea","Samoa","Solomon Islands","Tonga","Tuvalu","Vanuatu", sep = "/"))
+
+countryList <- (c(africa, asia, europe, north_america, oceania, south_america, countryList))
 
 #extract date range
   
@@ -39,9 +48,12 @@ ui <- fluidPage(
     mainPanel(
       
       # Output: Histogram ----
+      #cat(file=stderr(), "blaat", "\n"),
+      #print("woei"),
+      
       plotOutput(outputId = "distPlot"),
       
-      tags$div("Data is obtained from",  tags$a(href="https://coronavirus.jhu.edu/data", "John Hopkins University."), "Amount of infected people is calculated as the difference between the total number of confirmed cases and the number of deceased and recovered."),
+      tags$div("Data is obtained from",  tags$a(href="https://coronavirus.jhu.edu/data", "John Hopkins University."), "Number of infected people is calculated as the difference between the total number of confirmed cases and the number of deceased and recovered."),
       
     )
     
@@ -59,13 +71,14 @@ server <- function(input, output) {
   output$distPlot <- renderPlot({
     req(input$countrySelect)
     #validate(need(nrow(input$countrySelect) > 0, "Please select one or more countries"))
-
+    #cat(file=stderr(), "Rendering Plot", "\n")
     country <- input$countrySelect
     dates <- input$dateSelect
     
     validate(need(dates[2] >= dates[1], "Please select a valid date range"))
-    
-    plotData <- BigData %>% filter(`Country/Region` %in% country & Measurement_Date >= dates[1] & Measurement_Date <= dates[2]) %>% 
+    print(country)
+    foo <- (unlist(strsplit(country, "/")))
+    plotData <- BigData %>% filter(`Country/Region` %in% foo & Measurement_Date >= dates[1] & Measurement_Date <= dates[2]) %>% 
       group_by(Measurement_Date) %>% 
       summarise(Confirmed = sum(Confirmed), Deaths = sum(Deaths), Recovered = sum(Recovered), Infected = sum(Confirmed) - sum(Recovered) - sum(Deaths))
     # print(plotData)
